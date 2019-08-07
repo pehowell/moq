@@ -70,7 +70,10 @@ type Mocker struct {
 }
 
 // New makes a new Mocker for the specified package directory.
-func New(src, packageName string) (*Mocker, error) {
+func New(src, packageName, tmpDir string) (*Mocker, error) {
+	if tmpDir == "" {
+		tmpDir = src
+	}
 	srcPkg, err := pkgInfoFromPath(src, packages.LoadSyntax)
 	if err != nil {
 		return nil, fmt.Errorf("Couldn't load source package: %s", err)
@@ -80,7 +83,7 @@ func New(src, packageName string) (*Mocker, error) {
 	if len(packageName) == 0 {
 		packageName = srcPkg.Name
 	} else {
-		mockPkgPath := filepath.Join(src, packageName)
+		mockPkgPath := filepath.Join(tmpDir, packageName)
 		if _, err := os.Stat(mockPkgPath); os.IsNotExist(err) {
 			os.Mkdir(mockPkgPath, os.ModePerm)
 		}
